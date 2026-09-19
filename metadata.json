@@ -1,0 +1,8 @@
+{
+  "name": "Remix رحلة عبر النظام الشمسي",
+  "description": "تجربة سينمائية تفاعلية ثلاثية الأبعاد لاستكشاف الشمس وكواكب النظام الشمسي ببيانات علمية دقيقة وتحكم كامل بالحركة والكاميرا.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
