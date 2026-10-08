@@ -69,6 +69,8 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
 
   // Interactive Drag & Zoom Controls
   const isDragging = useRef(false);
+  const dragDistanceRef = useRef(0);
+  const touchPinchDistRef = useRef<number | null>(null);
   const previousMousePosition = useRef({ x: 0, y: 0 });
   const cameraPolarAngle = useRef(0.65); // elevation
   const cameraAzimuthAngle = useRef(0.85); // rotation
@@ -665,6 +667,7 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
   const handlePointerDown = (e: React.PointerEvent) => {
     if (isIntroActive) return;
     isDragging.current = true;
+    dragDistanceRef.current = 0;
     previousMousePosition.current = { x: e.clientX, y: e.clientY };
   };
 
@@ -673,6 +676,7 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
 
     const deltaX = e.clientX - previousMousePosition.current.x;
     const deltaY = e.clientY - previousMousePosition.current.y;
+    dragDistanceRef.current += Math.hypot(deltaX, deltaY);
     previousMousePosition.current = { x: e.clientX, y: e.clientY };
 
     if (!selectedPlanet) {
@@ -693,6 +697,40 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
     isDragging.current = false;
   };
 
+  // Two-Finger Touch Pinch-to-Zoom on Mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      touchPinchDistRef.current = dist;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 2 && touchPinchDistRef.current !== null && !selectedPlanet) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const delta = dist - touchPinchDistRef.current;
+      touchPinchDistRef.current = dist;
+      dragDistanceRef.current += Math.abs(delta);
+
+      cameraDistance.current = Math.max(70, Math.min(500, cameraDistance.current - delta * 0.6));
+      const targetDist = cameraDistance.current;
+      const x = targetDist * Math.sin(cameraAzimuthAngle.current) * Math.cos(cameraPolarAngle.current);
+      const y = targetDist * Math.sin(cameraPolarAngle.current);
+      const z = targetDist * Math.cos(cameraAzimuthAngle.current) * Math.cos(cameraPolarAngle.current);
+      cameraTargetPos.current.set(x, Math.max(y, 35), z);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchPinchDistRef.current = null;
+  };
+
   // Wheel to Zoom
   const handleWheel = (e: React.WheelEvent) => {
     if (isIntroActive) return;
@@ -711,6 +749,11 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
   // Raycasting on Click: Select Planet in 3D
   const handleClick = (e: React.MouseEvent) => {
     if (isIntroActive) return;
+    // On mobile & touch screens: if dragged more than 8 pixels, user was rotating camera, not clicking!
+    if (dragDistanceRef.current > 8) {
+      return;
+    }
+
     const container = containerRef.current;
     const camera = cameraRef.current;
     const scene = sceneRef.current;
@@ -753,6 +796,10 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
       onWheel={handleWheel}
       onClick={handleClick}
     >

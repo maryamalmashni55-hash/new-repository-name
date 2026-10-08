@@ -63,4 +63,22 @@ export interface CelestialBody {
   ringColor?: string;
 }
 
-export type ViewMode = 'system' | 'explore_deck' | 'quiz';
+export type ViewMode = 'system' | 'explore_deck' | 'quiz' | 'students_corner';
+
+export type StudentAttachmentType = 'image' | 'video' | 'pdf';
+
+export interface StudentProject {
+  id: string;
+  studentName: string;
+  title: string;
+  description: string;
+  planetRelated?: PlanetId | 'general';
+  attachmentType: StudentAttachmentType;
+  attachmentUrl: string; // Base64 data URL or external URL/Blob URL
+  fileName?: string;
+  fileSize?: string;
+  createdAt: number;
+  gradeOrClass?: string;
+  likes: number;
+  featured?: boolean;
+}

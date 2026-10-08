@@ -10,12 +10,15 @@ import {
   Sparkles, 
   ChevronRight, 
   ChevronLeft,
+  ChevronUp,
   X,
   Layers,
   HelpCircle,
   BookOpen,
   Volume2,
-  Radio
+  Radio,
+  Minimize2,
+  Maximize2
 } from 'lucide-react';
 import { CelestialBody } from '../types';
 import { spaceAudio } from '../utils/audioSynthesizer';
@@ -38,6 +41,7 @@ export const PlanetDetailsPanel: React.FC<PlanetDetailsPanelProps> = ({
   onPrevPlanet,
 }) => {
   const [activeTab, setActiveTab] = useState<PanelTab>('overview');
+  const [isMobileMinimized, setIsMobileMinimized] = useState(false);
 
   // Reset to overview whenever planet changes
   useEffect(() => {
@@ -46,20 +50,113 @@ export const PlanetDetailsPanel: React.FC<PlanetDetailsPanelProps> = ({
 
   if (!planet) return null;
 
+  // Minimized Mobile Quick Bar
+  if (isMobileMinimized) {
+    return (
+      <div
+        id="planet-details-minimized-mobile"
+        className="fixed bottom-3 inset-x-3 sm:hidden z-40 p-2.5 rounded-2xl bg-slate-950/95 border border-cyan-500/50 backdrop-blur-xl shadow-2xl flex items-center justify-between gap-2 pointer-events-auto"
+      >
+        <div className="flex items-center gap-2">
+          <span 
+            className="w-3 h-3 rounded-full shadow-md shrink-0" 
+            style={{ backgroundColor: planet.color }} 
+          />
+          <div>
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-bold text-white">{planet.nameAr}</span>
+            </div>
+            <span className="text-[10px] text-slate-400">{planet.typeAr}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1">
+          {/* Quick Sound */}
+          <button
+            onClick={() => {
+              spaceAudio.playPlanetFocus(planet.id);
+              spaceAudio.playPlanetAmbience(planet.id);
+            }}
+            className="p-2 rounded-xl bg-slate-900 border border-slate-700 text-cyan-300 hover:text-white"
+            title="صوت الكوكب"
+          >
+            <Radio className="w-3.5 h-3.5 text-cyan-400" />
+          </button>
+
+          {/* Prev / Next */}
+          <button 
+            onClick={() => {
+              spaceAudio.playClick();
+              onPrevPlanet();
+            }} 
+            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300"
+            title="الكوكب السابق"
+          >
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            onClick={() => {
+              spaceAudio.playClick();
+              onNextPlanet();
+            }} 
+            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300"
+            title="الكوكب التالي"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Expand Details */}
+          <button
+            onClick={() => {
+              spaceAudio.playClick();
+              setIsMobileMinimized(false);
+            }}
+            className="flex items-center gap-1 px-3 py-2 rounded-xl bg-cyan-600 text-white text-xs font-semibold shadow-md cursor-pointer"
+          >
+            <span>التفاصيل</span>
+            <ChevronUp className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Close */}
+          <button 
+            onClick={() => {
+              spaceAudio.playClick();
+              onClose();
+            }} 
+            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+            title="إغلاق"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AnimatePresence>
       <motion.aside
         id="planet-details-panel"
         key={planet.id}
-        initial={{ opacity: 0, x: 50, scale: 0.96 }}
-        animate={{ opacity: 1, x: 0, scale: 1 }}
-        exit={{ opacity: 0, x: 50, scale: 0.96 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed top-20 right-4 bottom-24 md:bottom-20 w-[calc(100%-2rem)] sm:w-[440px] max-w-full z-40 flex flex-col pointer-events-auto select-none"
+        initial={{ opacity: 0, y: 40, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 40, scale: 0.96 }}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="fixed inset-x-0 bottom-0 top-16 sm:top-20 sm:right-4 sm:bottom-20 sm:left-auto sm:w-[440px] max-w-full z-40 flex flex-col pointer-events-auto select-none"
       >
-        <div className="flex-1 flex flex-col overflow-hidden rounded-2xl bg-slate-950/85 border border-slate-700/70 backdrop-blur-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] text-slate-100">
+        <div className="flex-1 flex flex-col overflow-hidden rounded-t-3xl sm:rounded-2xl bg-slate-950/95 sm:bg-slate-950/85 border-t sm:border border-cyan-500/30 sm:border-slate-700/70 backdrop-blur-2xl shadow-[0_12px_40px_rgba(0,0,0,0.7)] text-slate-100">
+          
+          {/* Mobile Drag/Collapse Indicator */}
+          <div 
+            onClick={() => setIsMobileMinimized(true)}
+            className="sm:hidden pt-2 pb-1 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-900/40"
+          >
+            <div className="w-12 h-1 rounded-full bg-slate-600/80 mb-1" />
+            <span className="text-[10px] text-cyan-400/80 font-medium">اسحب أو انقر للتصغير ورؤية الكوكب 🔭</span>
+          </div>
+
           {/* Header Bar */}
-          <div className="p-4 sm:p-5 border-b border-slate-800/80 flex items-start justify-between relative overflow-hidden">
+          <div className="p-3 sm:p-5 border-b border-slate-800/80 flex items-start justify-between relative overflow-hidden">
             {/* Ambient colored top glow */}
             <div 
               className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20 pointer-events-none"
@@ -72,22 +169,31 @@ export const PlanetDetailsPanel: React.FC<PlanetDetailsPanelProps> = ({
                   className="w-2.5 h-2.5 rounded-full shadow-sm"
                   style={{ backgroundColor: planet.color }}
                 />
-                <span className="text-xs font-mono-num tracking-wider text-cyan-300 uppercase">
-                  {planet.nameEn}
-                </span>
-                <span className="text-xs text-slate-400 font-serif">
-                  ({planet.symbol})
+                <span className="text-xs text-slate-400">
+                  {planet.symbol}
                 </span>
               </div>
-              <h2 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight flex items-center gap-2">
                 {planet.nameAr}
               </h2>
-              <span className="inline-block mt-1 text-xs px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700/60">
+              <span className="inline-block mt-0.5 sm:mt-1 text-xs px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700/60">
                 {planet.typeAr}
               </span>
             </div>
 
             <div className="flex items-center gap-1.5">
+              {/* Mobile minimize button */}
+              <button
+                onClick={() => {
+                  spaceAudio.playClick();
+                  setIsMobileMinimized(true);
+                }}
+                className="sm:hidden p-2 rounded-lg bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-cyan-300 hover:text-white transition-colors cursor-pointer"
+                title="تصغير لمشاهدة الكوكب"
+              >
+                <Minimize2 className="w-4 h-4" />
+              </button>
+
               <button
                 id="panel-close-btn"
                 onClick={() => {

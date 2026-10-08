@@ -156,9 +156,6 @@ export const PlanetInteriorCutaway: React.FC<PlanetInteriorCutawayProps> = ({
                   {activeLayer.nameAr}
                 </h4>
               </div>
-              <span className="text-[11px] text-cyan-300 font-mono-num">
-                {activeLayer.nameEn}
-              </span>
             </div>
             <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-mono-num">
               الطبقة {selectedLayerIndex + 1} من {totalLayers}

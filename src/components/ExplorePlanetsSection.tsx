@@ -29,7 +29,7 @@ export const ExplorePlanetsSection: React.FC<ExplorePlanetsSectionProps> = ({
   };
 
   return (
-    <div id="explore-planets-section" className="w-full max-w-7xl mx-auto px-4 py-8 select-none">
+    <div id="explore-planets-section" className="w-full max-w-7xl mx-auto px-4 pt-14 sm:pt-8 pb-10 select-none">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
         <div>
@@ -79,8 +79,8 @@ export const ExplorePlanetsSection: React.FC<ExplorePlanetsSectionProps> = ({
               {/* Top Meta info */}
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-mono-num text-slate-400 uppercase tracking-wider">
-                    {planet.nameEn}
+                  <span className="text-xs text-slate-400">
+                    {planet.symbol}
                   </span>
                   <span className="text-xs px-2 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
                     {planet.typeAr}

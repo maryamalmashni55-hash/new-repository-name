@@ -8,6 +8,7 @@ import { ControlsBar } from './components/ControlsBar';
 import { PlanetDetailsPanel } from './components/PlanetDetailsPanel';
 import { ExplorePlanetsSection } from './components/ExplorePlanetsSection';
 import { CosmicQuizView } from './components/CosmicQuizView';
+import { StudentsCorner } from './components/StudentsCorner';
 import { spaceAudio } from './utils/audioSynthesizer';
 import { motion, AnimatePresence } from 'motion/react';
 import { Eye, X } from 'lucide-react';
@@ -156,7 +157,7 @@ export default function App() {
             onReplayIntro={handleReplayIntro}
           />
 
-          {/* If Exploration Mode is Active, provide a subtle floating exit button on top corner */}
+          {/* If Exploration Mode is Active, provide a subtle floating exit button on top corner with pulsating glow */}
           {isExplorationMode && (
             <button
               id="exit-explore-mode-float-btn"
@@ -164,9 +165,9 @@ export default function App() {
                 spaceAudio.playClick();
                 setIsExplorationMode(false);
               }}
-              className="fixed top-4 left-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/80 hover:bg-slate-900 border border-slate-700/60 text-xs text-cyan-300 backdrop-blur-md transition-all cursor-pointer shadow-lg"
+              className="fixed top-4 left-4 z-50 flex items-center gap-2 px-3.5 py-2 rounded-full bg-slate-950/90 hover:bg-slate-900 border border-cyan-400/70 text-xs sm:text-sm font-medium text-cyan-200 backdrop-blur-md transition-all cursor-pointer shadow-[0_0_18px_rgba(6,182,212,0.5)] hover:shadow-[0_0_28px_rgba(6,182,212,0.85)] animate-pulse"
             >
-              <Eye className="w-3.5 h-3.5" />
+              <Eye className="w-4 h-4 text-cyan-300" />
               <span>إظهار عناصر التحكم</span>
             </button>
           )}
@@ -180,12 +181,12 @@ export default function App() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 30 }}
                 transition={{ duration: 0.3 }}
-                className="fixed inset-0 top-16 bottom-20 z-20 overflow-y-auto pointer-events-auto bg-slate-950/80 backdrop-blur-md"
+                className="fixed inset-0 top-24 sm:top-20 bottom-0 z-20 overflow-y-auto pointer-events-auto bg-slate-950/90 backdrop-blur-md pb-24"
               >
                 <div className="relative">
                   <button
                     onClick={() => setViewMode('system')}
-                    className="absolute top-4 left-4 p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white cursor-pointer"
+                    className="absolute top-4 left-4 p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white cursor-pointer shadow-lg z-10"
                     title="العودة لمشهد الفضاء"
                   >
                     <X className="w-5 h-5" />
@@ -210,7 +211,7 @@ export default function App() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 30 }}
                 transition={{ duration: 0.3 }}
-                className="fixed inset-0 top-16 bottom-20 z-20 overflow-y-auto pointer-events-auto bg-slate-950/85 backdrop-blur-md"
+                className="fixed inset-0 top-24 sm:top-20 bottom-0 z-20 overflow-y-auto pointer-events-auto bg-slate-950/90 backdrop-blur-md pb-24"
               >
                 <CosmicQuizView
                   onClose={() => setViewMode('system')}
@@ -226,8 +227,42 @@ export default function App() {
             )}
           </AnimatePresence>
 
-          {/* Planet Details Panel (when a planet is inspected and not in full quiz mode) */}
-          {viewMode !== 'quiz' && (
+          {/* View Mode: "ركن الطالبات" (Students Corner: Gallery & Wall) */}
+          <AnimatePresence>
+            {viewMode === 'students_corner' && !isExplorationMode && (
+              <motion.div
+                key="students-corner-overlay"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 30 }}
+                transition={{ duration: 0.3 }}
+                className="fixed inset-0 top-24 sm:top-20 bottom-0 z-20 overflow-y-auto pointer-events-auto bg-slate-950/95 backdrop-blur-md pb-24"
+              >
+                <div className="relative">
+                  <button
+                    onClick={() => setViewMode('system')}
+                    className="absolute top-4 left-4 p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 hover:text-white cursor-pointer shadow-lg z-10"
+                    title="العودة لمشهد الفضاء"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                  <StudentsCorner
+                    onClose={() => setViewMode('system')}
+                    onExplorePlanet={(planetId) => {
+                      const targetPlanet = CELESTIAL_BODIES.find((p) => p.id === planetId);
+                      if (targetPlanet) {
+                        setSelectedPlanet(targetPlanet);
+                      }
+                      setViewMode('system');
+                    }}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Planet Details Panel (when a planet is inspected and not in full quiz/students corner mode) */}
+          {viewMode !== 'quiz' && viewMode !== 'students_corner' && (
             <PlanetDetailsPanel
               planet={selectedPlanet}
               onClose={handleClosePlanetDetails}
@@ -249,6 +284,7 @@ export default function App() {
             showLabels={showLabels}
             onToggleLabels={() => setShowLabels(!showLabels)}
             isExplorationMode={isExplorationMode}
+            isPlanetSelected={!!selectedPlanet}
           />
         </>
       )}
