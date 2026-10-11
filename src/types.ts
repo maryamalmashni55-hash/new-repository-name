@@ -82,3 +82,11 @@ export interface StudentProject {
   likes: number;
   featured?: boolean;
 }
+
+export interface CometEventData {
+  id: string;
+  nameAr: string;
+  descriptionAr: string;
+  color: string;
+  speedKmS: string;
+}

@@ -9,7 +9,9 @@ import {
   Tag, 
   HelpCircle,
   Gauge,
-  X
+  X,
+  Sparkles,
+  SunMedium
 } from 'lucide-react';
 import { spaceAudio } from '../utils/audioSynthesizer';
 
@@ -26,6 +28,9 @@ interface ControlsBarProps {
   onToggleLabels: () => void;
   isExplorationMode: boolean;
   isPlanetSelected?: boolean;
+  onTriggerComet?: () => void;
+  bloomEnabled?: boolean;
+  onToggleBloom?: () => void;
 }
 
 export const ControlsBar: React.FC<ControlsBarProps> = ({
@@ -41,6 +46,9 @@ export const ControlsBar: React.FC<ControlsBarProps> = ({
   onToggleLabels,
   isExplorationMode,
   isPlanetSelected = false,
+  onTriggerComet,
+  bloomEnabled = true,
+  onToggleBloom,
 }) => {
   const [showInfoNote, setShowInfoNote] = useState(false);
 
@@ -209,6 +217,41 @@ export const ControlsBar: React.FC<ControlsBarProps> = ({
           <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
           <span className="hidden sm:inline">إعادة الرؤية</span>
         </button>
+
+        {/* Cinematic Bloom Glow Toggle Button */}
+        {onToggleBloom && (
+          <button
+            id="toggle-bloom-btn"
+            onClick={() => {
+              spaceAudio.playClick();
+              onToggleBloom();
+            }}
+            className={`flex items-center justify-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs transition-all cursor-pointer shrink-0 ${
+              bloomEnabled
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+                : 'text-slate-400 hover:text-slate-200 bg-slate-900/60'
+            }`}
+            title="تفعيل / إيقاف تأثير التوهج السينمائي (Bloom Effect)"
+          >
+            <SunMedium className={`w-3.5 h-3.5 ${bloomEnabled ? 'text-amber-400 animate-pulse' : 'text-slate-400'}`} />
+            <span className="hidden sm:inline">التوهج (Bloom)</span>
+          </button>
+        )}
+
+        {/* Passing Comet Simulation Summon Button */}
+        {onTriggerComet && (
+          <button
+            id="trigger-comet-btn"
+            onClick={() => {
+              onTriggerComet();
+            }}
+            className="flex items-center justify-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs text-amber-200 hover:text-white bg-amber-950/40 hover:bg-amber-900/60 border border-amber-600/40 hover:border-amber-400/80 shadow-[0_0_12px_rgba(245,158,11,0.25)] hover:shadow-[0_0_20px_rgba(245,158,11,0.5)] transition-all cursor-pointer shrink-0"
+            title="إطلاق ومحاكاة مذنب عابر بذيول متوهجة في خلفية النظام الشمسي"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            <span className="hidden sm:inline">إطلاق مذنب</span>
+          </button>
+        )}
 
         {/* Mobile Info Button */}
         <button

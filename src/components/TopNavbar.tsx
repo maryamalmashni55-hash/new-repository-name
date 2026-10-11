@@ -16,6 +16,7 @@ import {
 import { ViewMode } from '../types';
 import { spaceAudio } from '../utils/audioSynthesizer';
 import { motion, AnimatePresence } from 'motion/react';
+import { SchoolLogo } from './SchoolLogo';
 
 interface TopNavbarProps {
   viewMode: ViewMode;
@@ -52,14 +53,17 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
             
             {/* Top Bar Row (Mobile: split into brand + actions; Desktop: left side) */}
             <div className="flex items-center justify-between gap-2">
-              {/* Brand Logo & Name */}
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-[0_0_12px_rgba(6,182,212,0.4)] shrink-0">
-                  <Orbit className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white animate-spin" style={{ animationDuration: '16s' }} />
+              {/* Brand Logo & Name with School Logo */}
+              <div className="flex items-center gap-2.5">
+                <div className="relative shrink-0 flex items-center justify-center">
+                  <SchoolLogo size={36} className="hover:scale-105 transition-transform" />
                 </div>
-                <div>
-                  <h1 className="text-xs sm:text-base font-bold text-white tracking-wide whitespace-nowrap">
-                    النظام الشمسي
+                <div className="flex flex-col text-right">
+                  <span className="text-[11px] sm:text-xs font-bold text-amber-300 leading-tight">
+                    المتوسطة الأولى بالراكة
+                  </span>
+                  <h1 className="text-[11px] sm:text-sm font-semibold text-slate-200 tracking-wide whitespace-nowrap leading-tight">
+                    رحلة عبر النظام الشمسي
                   </h1>
                 </div>
               </div>
@@ -197,13 +201,15 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
                   setShowCreditsModal(true);
                 }}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs text-slate-300 hover:border-slate-600 transition-all cursor-pointer shadow-sm"
-                title="عرض بطاقة الإشراف والتصميم"
+                title="عرض بطاقة المدرسة والإشراف والتصميم"
               >
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                <SchoolLogo size={22} />
                 <div className="flex items-center gap-1.5 text-xs text-slate-300 font-normal">
+                  <span className="text-amber-300 font-medium">المتوسطة الأولى بالراكة</span>
+                  <span className="text-slate-600">•</span>
                   <span>تصميم: <strong className="text-white font-medium">ميم</strong></span>
                   <span className="text-slate-600">•</span>
-                  <span>إشراف: <strong className="text-white font-medium">أ. مريم</strong></span>
+                  <span>إشراف: <strong className="text-white font-medium">معلمات العلوم ومعلمات الاجتماعيات</strong></span>
                 </div>
               </button>
 
@@ -304,7 +310,25 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
               </p>
 
               {/* Honors Badges */}
-              <div className="space-y-3.5 mb-6 text-right">
+              <div className="space-y-3 mb-6 text-right">
+                {/* School Card */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-slate-900 to-amber-950/20 border border-amber-500/30 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-white p-1 flex items-center justify-center shadow-md shrink-0">
+                      <SchoolLogo size={40} />
+                    </div>
+                    <div>
+                      <div className="text-xs text-amber-400 font-medium">صرح التعليم والموهبة</div>
+                      <div className="text-base sm:text-lg font-bold text-white">
+                        المتوسطة الأولى بالراكة
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[11px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                    المدرسة
+                  </span>
+                </div>
+
                 {/* Designer Card */}
                 <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -330,9 +354,9 @@ export const TopNavbar: React.FC<TopNavbarProps> = ({
                       <GraduationCap className="w-4 h-4" />
                     </div>
                     <div>
-                      <div className="text-xs text-slate-400">إشراف المعلمة</div>
-                      <div className="text-lg font-bold text-white">
-                        أستاذة مريم
+                      <div className="text-xs text-slate-400">إشراف المعلمات</div>
+                      <div className="text-base sm:text-lg font-bold text-white">
+                        معلمات العلوم ومعلمات الاجتماعيات
                       </div>
                     </div>
                   </div>

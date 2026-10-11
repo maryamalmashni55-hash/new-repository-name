@@ -1,6 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { CelestialBody, PlanetId } from '../types';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { CelestialBody, PlanetId, CometEventData } from '../types';
 import { 
   createPlanetTexture, 
   createRingTexture, 
@@ -8,6 +12,7 @@ import {
   createNebulaGlowTexture 
 } from '../utils/textureGenerator';
 import { spaceAudio } from '../utils/audioSynthesizer';
+import { CometSystemManager } from '../utils/cometSystem';
 
 interface SolarSystemCanvasProps {
   planets: CelestialBody[];
@@ -21,6 +26,9 @@ interface SolarSystemCanvasProps {
   introProgress: number; // 0 to 1
   onIntroCameraReady?: () => void;
   isExplorationMode: boolean;
+  onCometSpawned?: (event: CometEventData) => void;
+  triggerCometRef?: React.MutableRefObject<((presetId?: string) => void) | null>;
+  bloomEnabled?: boolean;
 }
 
 export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
@@ -35,6 +43,9 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
   introProgress,
   onIntroCameraReady,
   isExplorationMode,
+  onCometSpawned,
+  triggerCometRef,
+  bloomEnabled = true,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +53,14 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const composerRef = useRef<EffectComposer | null>(null);
+  const bloomPassRef = useRef<UnrealBloomPass | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
+  const cometManagerRef = useRef<CometSystemManager | null>(null);
+  const onCometSpawnedRef = useRef(onCometSpawned);
+  onCometSpawnedRef.current = onCometSpawned;
+  const bloomEnabledRef = useRef(bloomEnabled);
+  bloomEnabledRef.current = bloomEnabled;
 
   // Mesh registries
   const planetMeshesRef = useRef<Map<PlanetId, {
@@ -92,6 +110,20 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
     scene.background = new THREE.Color(0x02040a);
     sceneRef.current = scene;
 
+    // 3D Comets Visual Effects System (مظام محاكاة المذنبات العابرة ثلاثية الأبعاد)
+    const cometManager = new CometSystemManager(scene, (evt) => {
+      if (onCometSpawnedRef.current) {
+        onCometSpawnedRef.current(evt);
+      }
+    });
+    cometManagerRef.current = cometManager;
+
+    if (triggerCometRef) {
+      triggerCometRef.current = (presetId?: string) => {
+        cometManager.spawnComet(presetId);
+      };
+    }
+
     // Camera
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.5, 3000);
     camera.position.set(0, 180, 260);
@@ -103,9 +135,27 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.15;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    // --- Cinematic Postprocessing: Unreal Bloom Effect (تأثير التوهج السينمائي) ---
+    const renderScene = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(width, height),
+      1.15, // strength: lush cinematic radiance without overblowing
+      0.45, // radius: smooth ambient light dispersion
+      0.22  // threshold: triggers on emissive sun, bright stars, comet cores, and atmospheric rims
+    );
+    bloomPassRef.current = bloomPass;
+
+    const outputPass = new OutputPass();
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+    composer.addPass(outputPass);
+    composerRef.current = composer;
 
     // --- Lighting ---
     // Subtle ambient light so unlit sides of planets remain softly visible
@@ -319,6 +369,35 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
       planetMesh.receiveShadow = true;
       planetMesh.rotation.z = body.tilt;
 
+      // Atmospheric bloom corona halo around planets for cinematic limb glow
+      if (body.id !== 'sun') {
+        const atmosphereConfig: Record<string, { color: number; scale: number; opacity: number }> = {
+          earth: { color: 0x38bdf8, scale: 1.14, opacity: 0.45 },   // Cyan/Blue atmosphere
+          venus: { color: 0xfbbf24, scale: 1.12, opacity: 0.38 },   // Golden sulfuric haze
+          mars: { color: 0xf87171, scale: 1.09, opacity: 0.28 },    // Thin red/rust haze
+          jupiter: { color: 0xf59e0b, scale: 1.08, opacity: 0.25 }, // Amber gas giant glow
+          saturn: { color: 0xfcd34d, scale: 1.08, opacity: 0.24 },  // Pale golden glow
+          uranus: { color: 0x22d3ee, scale: 1.10, opacity: 0.35 },  // Turquoise methane aura
+          neptune: { color: 0x3b82f6, scale: 1.11, opacity: 0.40 }, // Deep azure methane glow
+          mercury: { color: 0xa1a1aa, scale: 1.06, opacity: 0.16 }, // Subtle exosphere shimmer
+        };
+
+        const atmo = atmosphereConfig[body.id];
+        if (atmo) {
+          const atmoGeom = new THREE.SphereGeometry(body.size * atmo.scale, 32, 32);
+          const atmoMat = new THREE.MeshBasicMaterial({
+            color: atmo.color,
+            transparent: true,
+            opacity: atmo.opacity,
+            blending: THREE.AdditiveBlending,
+            side: THREE.BackSide,
+            depthWrite: false,
+          });
+          const atmoMesh = new THREE.Mesh(atmoGeom, atmoMat);
+          planetMesh.add(atmoMesh);
+        }
+      }
+
       // Pivot group at (0,0,0) for orbital revolution
       const pivot = new THREE.Group();
       scene.add(pivot);
@@ -431,6 +510,9 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
       camera.aspect = newWidth / newHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(newWidth, newHeight);
+      if (composerRef.current) {
+        composerRef.current.setSize(newWidth, newHeight);
+      }
     };
     window.addEventListener('resize', handleResize);
 
@@ -438,6 +520,17 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
       window.removeEventListener('resize', handleResize);
       if (animationFrameIdRef.current) {
         cancelAnimationFrame(animationFrameIdRef.current);
+      }
+      if (triggerCometRef) {
+        triggerCometRef.current = null;
+      }
+      if (cometManagerRef.current) {
+        cometManagerRef.current.dispose();
+        cometManagerRef.current = null;
+      }
+      if (composerRef.current) {
+        composerRef.current.dispose();
+        composerRef.current = null;
       }
       renderer.dispose();
       if (container.contains(renderer.domElement)) {
@@ -452,6 +545,13 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
       orbitLinesGroupRef.current.visible = showOrbits;
     }
   }, [showOrbits]);
+
+  // Synchronize bloom pass strength
+  useEffect(() => {
+    if (bloomPassRef.current) {
+      bloomPassRef.current.strength = bloomEnabled ? 1.15 : 0.0;
+    }
+  }, [bloomEnabled]);
 
   // 3. Camera Position Target Computation based on selected planet or Intro state
   useEffect(() => {
@@ -531,6 +631,12 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
       if (sunOuterGlowMeshRef.current) {
         const pulseOuter = 1 + Math.cos(currentTime * 0.0014) * 0.06;
         sunOuterGlowMeshRef.current.scale.set(pulseOuter, pulseOuter, pulseOuter);
+      }
+
+      // Update 3D passing comets with glowing tails in background
+      if (cometManagerRef.current) {
+        const sunPos = new THREE.Vector3(0, 0, 0);
+        cometManagerRef.current.update(delta, sunPos, camera);
       }
 
       // A. Intro Camera Sequence handling
@@ -650,7 +756,12 @@ export const SolarSystemCanvas: React.FC<SolarSystemCanvasProps> = ({
         }
       }
 
-      renderer.render(scene, camera);
+      // Render using postprocessing EffectComposer with bloom when enabled, otherwise standard renderer
+      if (composerRef.current && bloomEnabledRef.current) {
+        composerRef.current.render();
+      } else {
+        renderer.render(scene, camera);
+      }
       animationFrameIdRef.current = requestAnimationFrame(animate);
     };
 

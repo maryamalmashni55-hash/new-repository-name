@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { CelestialBody, ViewMode } from './types';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { CelestialBody, ViewMode, CometEventData } from './types';
 import { CELESTIAL_BODIES } from './data/planetsData';
 import { SolarSystemCanvas } from './components/SolarSystemCanvas';
 import { IntroScreen } from './components/IntroScreen';
@@ -11,7 +11,7 @@ import { CosmicQuizView } from './components/CosmicQuizView';
 import { StudentsCorner } from './components/StudentsCorner';
 import { spaceAudio } from './utils/audioSynthesizer';
 import { motion, AnimatePresence } from 'motion/react';
-import { Eye, X } from 'lucide-react';
+import { Eye, X, Sparkles } from 'lucide-react';
 
 export default function App() {
   // Intro State
@@ -27,6 +27,28 @@ export default function App() {
   const [orbitSpeed, setOrbitSpeed] = useState(1.0);
   const [showOrbits, setShowOrbits] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
+  const [bloomEnabled, setBloomEnabled] = useState(true);
+
+  // 3D Passing Comets System State
+  const [activeCometEvent, setActiveCometEvent] = useState<CometEventData | null>(null);
+  const cometTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const triggerCometRef = useRef<((presetId?: string) => void) | null>(null);
+
+  const handleCometSpawned = useCallback((event: CometEventData) => {
+    setActiveCometEvent(event);
+    if (cometTimeoutRef.current) {
+      clearTimeout(cometTimeoutRef.current);
+    }
+    cometTimeoutRef.current = setTimeout(() => {
+      setActiveCometEvent(null);
+    }, 4800);
+  }, []);
+
+  const handleTriggerComet = useCallback(() => {
+    if (triggerCometRef.current) {
+      triggerCometRef.current();
+    }
+  }, []);
 
   // Cinematic Exploration Mode (Full Screen Cinema)
   const [isExplorationMode, setIsExplorationMode] = useState(false);
@@ -129,8 +151,49 @@ export default function App() {
           isIntroActive={isIntroActive}
           introProgress={introProgress}
           isExplorationMode={isExplorationMode}
+          onCometSpawned={handleCometSpawned}
+          triggerCometRef={triggerCometRef}
+          bloomEnabled={bloomEnabled}
         />
       </div>
+
+      {/* 2. Passing Comet Observational Alert Toast */}
+      <AnimatePresence>
+        {activeCometEvent && !isIntroActive && (
+          <motion.div
+            key={`comet-toast-${activeCometEvent.id}`}
+            initial={{ opacity: 0, y: -24, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.94 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="fixed top-20 left-4 sm:left-6 z-40 flex items-center gap-3 px-3.5 py-2.5 rounded-2xl bg-slate-950/90 border border-amber-500/40 backdrop-blur-xl shadow-[0_0_26px_rgba(245,158,11,0.28)] text-xs pointer-events-auto"
+          >
+            <div 
+              className="w-2.5 h-2.5 rounded-full animate-ping shrink-0"
+              style={{ backgroundColor: activeCometEvent.color }}
+            />
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5 font-bold text-amber-200">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>{activeCometEvent.nameAr}</span>
+                <span className="text-[10px] text-cyan-300 font-mono-num font-normal mr-1">
+                  ({activeCometEvent.speedKmS} كم/ث)
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-0.5 line-clamp-1 max-w-[220px] sm:max-w-[280px]">
+                {activeCometEvent.descriptionAr}
+              </p>
+            </div>
+            <button
+              onClick={() => setActiveCometEvent(null)}
+              className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/60 mr-1"
+              title="إغلاق"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 2. Fullscreen Cinematic Intro Screen */}
       <AnimatePresence>
@@ -285,6 +348,9 @@ export default function App() {
             onToggleLabels={() => setShowLabels(!showLabels)}
             isExplorationMode={isExplorationMode}
             isPlanetSelected={!!selectedPlanet}
+            onTriggerComet={handleTriggerComet}
+            bloomEnabled={bloomEnabled}
+            onToggleBloom={() => setBloomEnabled((prev) => !prev)}
           />
         </>
       )}

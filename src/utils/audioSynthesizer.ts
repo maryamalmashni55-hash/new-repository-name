@@ -615,6 +615,50 @@ class SpaceAudioEngine {
   }
 
   // --- General UI Feedback SFX ---
+  public playCometPass() {
+    if (this.isMuted || !this.ctx) return;
+    try {
+      this.initContext();
+      const now = this.ctx.currentTime;
+
+      // Ethereal high-altitude celestial chime
+      const osc1 = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const filter = this.ctx.createBiquadFilter();
+      const gain = this.ctx.createGain();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(880, now);
+      osc1.frequency.exponentialRampToValueAtTime(1320, now + 0.6);
+      osc1.frequency.exponentialRampToValueAtTime(550, now + 1.8);
+
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(440, now);
+      osc2.frequency.exponentialRampToValueAtTime(660, now + 0.6);
+      osc2.frequency.exponentialRampToValueAtTime(220, now + 2.0);
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1200, now);
+      filter.Q.setValueAtTime(3, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.035, now + 0.4);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 2.2);
+      osc2.stop(now + 2.2);
+    } catch {
+      // ignore
+    }
+  }
+
   public playWhoosh() {
     if (this.isMuted || !this.ctx) return;
     try {

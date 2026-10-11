@@ -1,0 +1,55 @@
+<svg viewBox="0 0 400 400" width="400" height="400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="schoolOrangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#f59e0b" />
+      <stop offset="50%" stopColor="#f97316" />
+      <stop offset="100%" stopColor="#ea580c" />
+    </linearGradient>
+    <linearGradient id="schoolTealPetalCenter" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stopColor="#2dd4bf" />
+      <stop offset="60%" stopColor="#06b6d4" />
+      <stop offset="100%" stopColor="#0284c7" />
+    </linearGradient>
+    <linearGradient id="schoolTealPetalSide" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stopColor="#14b8a6" />
+      <stop offset="70%" stopColor="#0891b2" />
+      <stop offset="100%" stopColor="#0369a1" />
+    </linearGradient>
+    <linearGradient id="schoolBluePetalBack" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stopColor="#0d9488" />
+      <stop offset="100%" stopColor="#0f766e" />
+    </linearGradient>
+    <linearGradient id="schoolBookTopGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stopColor="#38bdf8" />
+      <stop offset="50%" stopColor="#0ea5e9" />
+      <stop offset="100%" stopColor="#0284c7" />
+    </linearGradient>
+    <linearGradient id="schoolBookBottomGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stopColor="#0284c7" />
+      <stop offset="50%" stopColor="#0369a1" />
+      <stop offset="100%" stopColor="#1e40af" />
+    </linearGradient>
+    <path id="schoolTextArcPath" d="M 58,215 A 155,155 0 0,1 342,215" fill="none" />
+  </defs>
+  <path d="M 200,20 C 310,20 375,90 375,200 C 375,250 355,295 330,315 C 275,348 230,325 200,345 C 170,325 125,348 70,315 C 45,295 25,250 25,200 C 25,90 90,20 200,20 Z" fill="#ffffff" stroke="#ffffff" strokeWidth="12" strokeLinejoin="round" />
+  <path d="M 38,206 A 168,168 0 0,1 362,206 L 326,206 A 128,128 0 0,0 74,206 Z" fill="url(#schoolOrangeGrad)" />
+  <path d="M 34,206 A 172,172 0 0,1 366,206" stroke="#f97316" strokeWidth="2.5" fill="none" />
+  <path d="M 72,206 A 130,130 0 0,0 328,206" stroke="#ffffff" strokeWidth="2.5" fill="none" />
+  <text fill="#ffffff" fontSize="27" fontWeight="bold" fontFamily="Tajawal, sans-serif" letterSpacing="0.5">
+    <textPath href="#schoolTextArcPath" startOffset="50%" textAnchor="middle">المتوسطة الأولى بالراكة</textPath>
+  </text>
+  <g transform="translate(0, -10)">
+    <path d="M 200,300 C 175,260 145,225 160,185 C 172,225 190,265 200,300 Z" fill="url(#schoolBluePetalBack)" opacity="0.9" />
+    <path d="M 200,300 C 225,260 255,225 240,185 C 228,225 210,265 200,300 Z" fill="url(#schoolBluePetalBack)" opacity="0.9" />
+    <path d="M 200,300 C 160,285 105,250 110,185 C 130,220 168,265 200,300 Z" fill="url(#schoolTealPetalSide)" />
+    <path d="M 200,300 C 240,285 295,250 290,185 C 270,220 232,265 200,300 Z" fill="url(#schoolTealPetalSide)" />
+    <path d="M 200,300 C 170,265 140,210 162,158 C 178,205 190,260 200,300 Z" fill="url(#schoolTealPetalSide)" />
+    <path d="M 200,300 C 230,265 260,210 238,158 C 222,205 210,260 200,300 Z" fill="url(#schoolTealPetalSide)" />
+    <path d="M 200,145 C 214,195 218,255 200,302 C 182,255 186,195 200,145 Z" fill="url(#schoolTealPetalCenter)" />
+  </g>
+  <g>
+    <path d="M 200,285 C 240,270 295,268 332,282 C 305,296 250,296 200,314 C 150,296 95,296 68,282 C 105,268 160,270 200,285 Z" fill="url(#schoolBookTopGrad)" />
+    <path d="M 200,314 C 250,296 308,296 352,314 C 318,335 258,328 200,344 C 142,328 82,335 48,314 C 92,296 150,296 200,314 Z" fill="url(#schoolBookBottomGrad)" />
+    <path d="M 200,285 L 200,344" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+  </g>
+</svg>

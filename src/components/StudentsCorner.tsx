@@ -26,6 +26,7 @@ import { CELESTIAL_BODIES } from '../data/planetsData';
 import { INITIAL_STUDENT_PROJECTS } from '../data/studentProjectsData';
 import { spaceAudio } from '../utils/audioSynthesizer';
 import { motion, AnimatePresence } from 'motion/react';
+import { SchoolLogo } from './SchoolLogo';
 
 const STORAGE_KEY = 'solar_system_student_projects_v2';
 
@@ -264,9 +265,15 @@ export const StudentsCorner: React.FC<StudentsCornerProps> = ({
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-800/80">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs sm:text-sm mb-3">
-            <GraduationCap className="w-4 h-4 text-cyan-400" />
-            <span>إبداعات وأبحاث الطالبات الفلكية</span>
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs sm:text-sm">
+              <SchoolLogo size={18} />
+              <span className="font-semibold">المتوسطة الأولى بالراكة</span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs sm:text-sm">
+              <GraduationCap className="w-4 h-4 text-cyan-400" />
+              <span>إبداعات وأبحاث الطالبات الفلكية</span>
+            </div>
           </div>
           <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight flex items-center gap-3">
             <span>معرض الفضاء</span>
@@ -275,7 +282,7 @@ export const StudentsCorner: React.FC<StudentsCornerProps> = ({
             </span>
           </h2>
           <p className="text-slate-400 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
-            مساحة مخصصة لعرض إبداعات وأبحاث الطالبات في علوم الفضاء والنظام الشمسي. يمكنك تصفح الأعمال، رفع فيديو، ملف PDF، أو صورة ولوحة فنية مع تسجيل اسمك ونبذة عن عملك.
+            مساحة مخصصة لعرض إبداعات وأبحاث طالبات المتوسطة الأولى بالراكة في علوم الفضاء والنظام الشمسي. يمكنك تصفح الأعمال، رفع فيديو، ملف أو صورة مع تسجيل اسمك ونبذة عن عملك.
           </p>
         </div>
 
