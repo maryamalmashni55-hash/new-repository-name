@@ -10,8 +10,7 @@ import {
   HelpCircle,
   Gauge,
   X,
-  Sparkles,
-  SunMedium
+  Sparkles
 } from 'lucide-react';
 import { spaceAudio } from '../utils/audioSynthesizer';
 
@@ -29,8 +28,6 @@ interface ControlsBarProps {
   isExplorationMode: boolean;
   isPlanetSelected?: boolean;
   onTriggerComet?: () => void;
-  bloomEnabled?: boolean;
-  onToggleBloom?: () => void;
 }
 
 export const ControlsBar: React.FC<ControlsBarProps> = ({
@@ -41,14 +38,12 @@ export const ControlsBar: React.FC<ControlsBarProps> = ({
   onSetSpeed,
   onResetCamera,
   showOrbits,
-  onToggleOrbits,
   showLabels,
   onToggleLabels,
+  onToggleOrbits,
   isExplorationMode,
   isPlanetSelected = false,
   onTriggerComet,
-  bloomEnabled = true,
-  onToggleBloom,
 }) => {
   const [showInfoNote, setShowInfoNote] = useState(false);
 
@@ -217,26 +212,6 @@ export const ControlsBar: React.FC<ControlsBarProps> = ({
           <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
           <span className="hidden sm:inline">إعادة الرؤية</span>
         </button>
-
-        {/* Cinematic Bloom Glow Toggle Button */}
-        {onToggleBloom && (
-          <button
-            id="toggle-bloom-btn"
-            onClick={() => {
-              spaceAudio.playClick();
-              onToggleBloom();
-            }}
-            className={`flex items-center justify-center gap-1 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl text-xs transition-all cursor-pointer shrink-0 ${
-              bloomEnabled
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
-                : 'text-slate-400 hover:text-slate-200 bg-slate-900/60'
-            }`}
-            title="تفعيل / إيقاف تأثير التوهج السينمائي (Bloom Effect)"
-          >
-            <SunMedium className={`w-3.5 h-3.5 ${bloomEnabled ? 'text-amber-400 animate-pulse' : 'text-slate-400'}`} />
-            <span className="hidden sm:inline">التوهج (Bloom)</span>
-          </button>
-        )}
 
         {/* Passing Comet Simulation Summon Button */}
         {onTriggerComet && (

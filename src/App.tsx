@@ -27,7 +27,6 @@ export default function App() {
   const [orbitSpeed, setOrbitSpeed] = useState(1.0);
   const [showOrbits, setShowOrbits] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
-  const [bloomEnabled, setBloomEnabled] = useState(true);
 
   // 3D Passing Comets System State
   const [activeCometEvent, setActiveCometEvent] = useState<CometEventData | null>(null);
@@ -153,7 +152,6 @@ export default function App() {
           isExplorationMode={isExplorationMode}
           onCometSpawned={handleCometSpawned}
           triggerCometRef={triggerCometRef}
-          bloomEnabled={bloomEnabled}
         />
       </div>
 
@@ -349,8 +347,6 @@ export default function App() {
             isExplorationMode={isExplorationMode}
             isPlanetSelected={!!selectedPlanet}
             onTriggerComet={handleTriggerComet}
-            bloomEnabled={bloomEnabled}
-            onToggleBloom={() => setBloomEnabled((prev) => !prev)}
           />
         </>
       )}
